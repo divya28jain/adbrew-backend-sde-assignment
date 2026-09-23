@@ -1,0 +1,16 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Local database / generated data
+src/db/
+
+# React
+node_modules/
+.eslintcache
+*.log
+
+# Environment / secrets
+.env
+.env.*
+!.env.example

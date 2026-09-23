@@ -1,12 +1,12 @@
-version: '2'
+
 services:
   api:
     build: .
     container_name: api
-    command: bash -c "cd /src/rest && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "cd /src/rest && python manage.py runserver 0.0.0.0:8000 --noreload"
     ports:
       - "8000:8000"
-    links:
+    depends_on:
       - mongo
     volumes:
       - ${ADBREW_CODEBASE_PATH}/tmp:/tmp
@@ -15,20 +15,22 @@ services:
   app:
     build: .
     container_name: app
-    command: bash -c "cd /src/app && yarn install && yarn start"
+    command: bash -c "cd /src/app && if [ ! -x node_modules/.bin/react-scripts ]; then yarn install; fi && yarn start"
     ports:
       - "3000:3000"
     volumes:
       - ${ADBREW_CODEBASE_PATH}:/src
+      - app_node_modules:/src/app/node_modules
 
   mongo:
-    build: .
+    image: mongo:4.4
     container_name: mongo
     restart: always
     ports:
       - "27017:27017"
     volumes:
       - ${ADBREW_CODEBASE_PATH}/db/:/data/db
-    command: /usr/bin/mongod --bind_ip 0.0.0.0
+    command: mongod --bind_ip_all
 
-    
+volumes:
+  app_node_modules:

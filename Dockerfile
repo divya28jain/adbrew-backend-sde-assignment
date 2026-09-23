@@ -1,4 +1,7 @@
-# set base image (host OS)
+# Get Node.js 14 from the official Node image
+FROM node:14.21.3-buster AS node
+
+# Main image
 FROM python:3.8
 
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
@@ -10,29 +13,38 @@ RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
 RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
 
 
-# Mongo
-RUN ln -s /bin/echo /bin/systemctl
-RUN wget -qO - https://www.mongodb.org/static/pgp/server-4.4.asc | apt-key add -
-RUN echo "deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.4 main" | tee /etc/apt/sources.list.d/mongodb-org-4.4.list
-RUN apt-get -y update
-RUN apt-get install -y mongodb-org
+
+
+# Copy Node.js 14 and npm from the official Node image
+COPY --from=node /usr/local/bin/node /usr/local/bin/node
+COPY --from=node /usr/local/bin/npm /usr/local/bin/npm
+COPY --from=node /usr/local/bin/npx /usr/local/bin/npx
+COPY --from=node /usr/local/lib/node_modules /usr/local/lib/node_modules
+
+# Create npm/npx links
+RUN ln -sf /usr/local/lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm
+RUN ln -sf /usr/local/lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
 # Install Yarn
-RUN apt-get install -y yarn
+RUN npm install -g yarn@1.22.22
+
 
 # Install PIP
-RUN easy_install pip
+RUN python -m pip install "pip<24.1"
 
 
 ENV ENV_TYPE staging
 ENV MONGO_HOST mongo
 ENV MONGO_PORT 27017
-##########
 
 ENV PYTHONPATH=$PYTHONPATH:/src/
 
-# copy the dependencies file to the working directory
+# Copy Python dependencies
 COPY src/requirements.txt .
 
-# install dependencies
+# Install Python dependencies
 RUN pip install -r requirements.txt
+
+# Frontend
+WORKDIR /src/app
+RUN yarn install
