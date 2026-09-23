@@ -1,3 +1,24 @@
+# Adbrew Backend SDE Assignment — Divya Jain
+
+Completed implementation of the Adbrew Backend SDE Intern assignment.
+
+## Implementation Summary
+
+- React frontend implemented using React Hooks
+- Django REST API for TODO creation and retrieval
+- MongoDB used for persistent TODO storage
+- Dockerized React, Django, and MongoDB services
+- TODO list fetched from the backend
+- TODO list refreshed after creating a TODO
+- API error handling and request validation
+- Frontend API communication separated into a dedicated module
+
+---
+
+## Original Assignment
+
+The original assignment instructions are retained below for reference.
+
 # NOTE: DO NOT FORK THIS REPOSITORY. CLONE AND SETUP A STANDALONE REPOSITORY.
 
 # Adbrew Test!
